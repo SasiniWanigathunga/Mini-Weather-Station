@@ -1,1 +1,1 @@
-# Mini-Weather-Station
+#WeatherWise - Mini Weather Station

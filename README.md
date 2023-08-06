@@ -7,3 +7,5 @@ WeatherWise is a smart and connected weather station designed to measure tempera
 2. WiFi Connectivity: The weather station connects to the Blynk IoT platform via WiFi, allowing users to monitor weather data from anywhere using a web dashboard or mobile app.
 3. Power Optimization: WeatherWise employs power-saving techniques to maximize battery life, including data transmission at specific intervals and reduced current consumption.
 4. Buzzer Alert: The integrated buzzer provides alerts during extreme weather conditions, ensuring users stay informed about significant weather changes.
+# Design Process
+## Schematic and PCB Design

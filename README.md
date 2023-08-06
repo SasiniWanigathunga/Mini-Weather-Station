@@ -1,4 +1,4 @@
-##WeatherWise - Mini Weather Station
+#WeatherWise - Mini Weather Station
 #Overview
 WeatherWise is a smart and connected weather station designed to measure temperature, humidity, atmospheric pressure, and ambient light intensity. It provides real-time weather data that can be accessed through a web dashboard and a mobile application.
 #Key Features

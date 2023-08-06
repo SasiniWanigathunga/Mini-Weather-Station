@@ -9,3 +9,4 @@ WeatherWise is a smart and connected weather station designed to measure tempera
 4. Buzzer Alert: The integrated buzzer provides alerts during extreme weather conditions, ensuring users stay informed about significant weather changes.
 # Design Process
 ## Schematic and PCB Design
+![pcb](https://github.com/SasiniWanigathunga/Mini-Weather-Station/assets/92870335/b7c275fa-4b74-4834-8cb9-7cb28a54b0db)

@@ -14,13 +14,13 @@ WeatherWise is a smart and connected weather station designed to measure tempera
 ![enclosure2](https://github.com/SasiniWanigathunga/Mini-Weather-Station/assets/92870335/4e048c23-27f8-40a5-9f4e-1684eb879e60)
 
 All the design files including schematic design files, PCB design files and enclosure design files are shared in this repository. 
-# Specifications
-## Measurement Ranges:
+## Specifications
+### Measurement Ranges:
 + Temperature: -40°C to 85°C
 + Atmospheric Pressure: 300hPa to 1100hPa
 + Humidity: 0% to 100% RH
 + Ambient Light Intensity: 0 lux to 1000 lux
-## Power Source:
+### Power Source:
 + Battery: Rechargeable Li-ion (3.7V, 1800mAh)
 + Charging: Micro USB with 5V adapter
 + Battery Life:

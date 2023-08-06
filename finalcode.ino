@@ -1,4 +1,3 @@
-
 #include <Wire.h>
 #include <SPI.h>
 #include <Adafruit_Sensor.h>
@@ -7,6 +6,7 @@
 #include <Adafruit_SSD1306.h>
 #include <BlynkSimpleEsp32.h>
 #include "Adafruit_HTU21DF.h"
+#include <WiFiManager.h> 
 
 #define BLYNK_TEMPLATE_ID "TMPL6JvKokjjm"
 #define BLYNK_TEMPLATE_NAME "MINI WEATHER STATION"
@@ -23,6 +23,7 @@
 #define LED_WIFI 34
 #define BUTTON 14
 
+//for buzzer alarm
 bool break_happened = false;
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
@@ -30,14 +31,15 @@ Adafruit_BMP280 bmp;
 Adafruit_HTU21DF htu = Adafruit_HTU21DF();
 
 double calcLightIntensity(int AnVal, int Resistor){
-  double Vout= AnVal*0.0048828125;
-  int lux=((2500/Vout-500)/Resistor);
+  float lux = (AnVal / 4095.0) * 100.0;
+  //double Vout= AnVal*0.0048828125;
+  //int lux=((2500/Vout-500)/Resistor);
   return lux;
 }
 
 char auth[] = BLYNK_AUTH_TOKEN;
-char ssid[] = "AndroidAP8156";  // type your wifi name
-char pass[] = "87654321";  // type your wifi password
+char ssid[40] ="";  // type your wifi name
+char pass[40] ="";  // type your wifi password
 BlynkTimer timer;
 
 
@@ -46,24 +48,20 @@ void sendSensor()
     digitalWrite(LED_WIFI,HIGH);
     float temp = bmp.readTemperature();
     float pressure = bmp.readPressure()/100;
-    float alt = bmp.readAltitude(1013.25);
+    float rel_hum = htu.readHumidity();
+    //float alt = bmp.readAltitude(1013.25);
     int analogVal = analogRead(LIGHT_SENSOR_PIN); //read values from D15
-    int Resistance= 10; //I am using a 1k ohms resistor
+    int Resistance= 10; //I am using a 10k ohms resistor
     int luxval=calcLightIntensity(analogVal, Resistance );
+    
 
   // You can send any value at any time.
   // Please don't send more that 10 values per second.
     if (Blynk.connected()){
       Blynk.virtualWrite(V0, temp);
       Blynk.virtualWrite(V1, pressure);
-      Blynk.virtualWrite(V2, alt);
+      Blynk.virtualWrite(V2, rel_hum);
       Blynk.virtualWrite(V3, luxval);
-      Serial.print("Temperature : ");
-      Serial.print(temp);
-      Serial.print("    Pressure : ");
-      Serial.print(pressure);
-      Serial.print("    Altitude : ");
-      Serial.println(alt);
     }
     
     
@@ -90,20 +88,35 @@ void ring_buzzer(){
 
 void setup() {
   Serial.begin(9600);
+
+  WiFiManager wm;
+  wm.resetSettings();
+  bool res = wm.autoConnect("AutoConnectAP","password");
+  if(!res) {
+    Serial.println("Failed to connect");
+    // ESP.restart();
+  } 
+  else {
+    //if you get here you have connected to the WiFi    
+    Serial.println("connected...yeey :)");
+    String ssidString = wm.getWiFiSSID();
+    String passString = wm.getWiFiPass();
+    ssidString.toCharArray(ssid, sizeof(ssid));
+    passString.toCharArray(pass, sizeof(pass));
+  }
   pinMode(BUZZER, OUTPUT);
   pinMode(LIGHT_SENSOR_PIN, INPUT);
   pinMode(LED_WIFI,OUTPUT);
   pinMode(BUTTON,INPUT);
 
   Blynk.begin(auth, ssid, pass);
+  /***
   while (Blynk.connect() == false) {
     if(((millis()/1000) - timeout) > 10){   // issue msg if not connected to Blynk in more than 10 seconds
       break; 
     }
   }
-  
-  //dht.begin();
-  Serial.println(F("BMP280 test"));
+  ***/
 
   Wire.begin();
  // initialize the SSD1306 OLED display with I2C address = 0x3D
@@ -113,8 +126,8 @@ void setup() {
   display.setTextSize(1);   // text size = 1
   display.setTextColor(WHITE, BLACK);  // set text color to white and black background
   display.setTextWrap(false);           // disable text wrap
-  display.setCursor(5, 0);              // move cursor to position (0, 4) pixel
-  display.print("Mini Weather Station");
+  //display.setCursor(5, 0);              // move cursor to position (0, 4) pixel
+  //display.print("Mini Weather Station");
   /***
   display.setCursor(123, 4);            // move cursor to position (123, 4) pixel
   display.println("S");  display.setCursor(123, display.getCursorY());
@@ -161,17 +174,21 @@ void setup() {
 
 void loop() {
   timer.setInterval(100L, sendSensor);
+
   float temp_bmp280 = bmp.readTemperature();    // get temperature in degree Celsius
   float pres = bmp.readPressure()/100;       // get pressure in Pa
-  float alti = bmp.readAltitude(SEALEVELPRESSURE_HPA);       // get altitude in meter
-  int analogVal = analogRead(LIGHT_SENSOR_PIN); //read values from D15
-  int Resistance= 1; //I am using a 1k ohms resistor
-  int luxval=calcLightIntensity(analogVal, Resistance );
+  //float alti = bmp.readAltitude(SEALEVELPRESSURE_HPA);       // get altitude in meter
+
   float temp_htu21d = htu.readTemperature();
   float rel_hum = htu.readHumidity();
+
+  int analogVal = analogRead(LIGHT_SENSOR_PIN); //read values from D15
+  int Resistance= 10; //I am using a 10k ohms resistor
+  int luxval=calcLightIntensity(analogVal, Resistance );
   
   delay(1000);  // wait a second
  // print data on the LCD
+
    // print temperature
   //display.clearDisplay();
   Serial.print("Temperature1 = ");
@@ -191,13 +208,7 @@ void loop() {
  // print degree symbols ( ° )
   display.drawRect(111, 16, 3, 3, WHITE);
   //delay(2000);
-  if (temp_bmp280>27.15 || temp_bmp280<27){
-    Serial.println(digitalRead(BUTTON));
-    ring_buzzer();
-  }
-  else{
-    bool break_happened = false;
-  }
+  
 
  //print pressure
   //display.clearDisplay();
@@ -236,15 +247,26 @@ void loop() {
   Serial.println(" lux");
   display.setCursor(0, 52);
   display.print("Light Intensity:");
-  display.setCursor(80, 52);
-  display.printf("%02u lux", (int)(luxval));
+  display.setCursor(100, 52);
+  display.printf("%02u %s", (int)(luxval), "%");
   //delay(2000);
+
+  //extreme conditions
+  if (temp_bmp280>35 || temp_bmp280<20 || rel_hum > 80 || rel_hum < 30 || pres > 1100 || pres < 900){
+    Serial.println(digitalRead(BUTTON));
+    ring_buzzer();
+  }
+  else{
+    bool break_happened = false;
+  }
+
 
  // update the display
   display.display();
-  delay(1000);  // wait a second
+  delay(60000);  // wait a second
   Serial.println();
 
   Blynk.run();
   timer.run();
 }
+

@@ -42,4 +42,4 @@ All the design files including schematic design files, PCB design files and encl
 ## Validation and Testing
 WeatherWise has undergone rigorous validation and testing to ensure accurate measurements and reliable performance. It has been exposed to various weather conditions, and the buzzer activation during extreme weather events has been thoroughly assessed.
 ## Contributing
-We welcome contributions from the open-source community! If you have any ideas, bug fixes, or enhancements, feel free to submit a pull request.
+I welcome contributions from the open-source community! If you have any ideas, bug fixes, or enhancements, feel free to submit a pull request.
